@@ -1,0 +1,3 @@
+Get-ChildItem -Path .\ -Filter *.class -Recurse | Remove-Item -Force
+javac Client.java Services\*.java
+java Client
