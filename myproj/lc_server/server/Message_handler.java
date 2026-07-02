@@ -1,13 +1,22 @@
-+
-3
 import java.io.*;
 import java.sql.*;
 
 public class Message_handler {
     PrintWriter spw;
+    String currentUsername;
 
-    public Message_handler(PrintWriter spw) {
+    public Message_handler(PrintWriter spw, String currentUsername) {
         this.spw = spw;
+        this.currentUsername = currentUsername;
+    }
+
+    private void sendEncrypted(PrintWriter pw, String payload, String username) {
+        if (username != null && ServerCryptUtil.getUserKey(username) != null) {
+            String encrypted = ServerCryptUtil.encrypt(payload, username);
+            pw.println("ENCRYPTED::" + encrypted);
+        } else {
+            pw.println(payload);
+        }
     }
 
     public void handleMessage(int chatRoomId, String sender, String content) {
@@ -21,7 +30,6 @@ public class Message_handler {
             pstmt.setInt(2, senderId);
             pstmt.setString(3, content);
             pstmt.executeUpdate();
-            
 
             // --- REAL-TIME ROUTING ---
             int targetUserId = -1;
@@ -60,14 +68,14 @@ public class Message_handler {
                 if (!targetUsername.isEmpty()) {
                     PrintWriter targetPw = Server.connected_clients.get(targetUsername);
                     if (targetPw != null) {
-                        targetPw.println("MESSAGE::" + senderUsername + "::" + content);
+                        sendEncrypted(targetPw, "MESSAGE::" + senderUsername + "::" + content, targetUsername);
                     }
                 }
             }
 
         } catch (SQLException e) {
             System.out.println("Error occurred while saving message: " + e.getMessage());
-            spw.println("MESSAGE::FAILURE");
+            sendEncrypted(spw, "MESSAGE::FAILURE", currentUsername);
         }
     }
 }

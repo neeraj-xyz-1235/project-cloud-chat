@@ -108,29 +108,25 @@ public class User_auth extends JFrame {
             return;
         }
 
-        new Thread(() -> { // lambda expression to create a new thread for handling login, so that the GUI
-                           // remains responsive while waiting for server response
+        new Thread(() -> { // lambda expression to create a new thread for handling login, so that the GUI remains responsive while waiting for server response
             try {
-                pw.println("LOGIN::" + enteredUsername + "::" + new String(enteredPassword)); // sends the login request
-                                                                                              // to the server with the
-                                                                                              // entered username and
-                                                                                              // password
+                pw.println("LOGIN::" + enteredUsername + "::" + new String(enteredPassword)); // sends the login request to the server with the entered username and password
                 String login_response;
                 while ((login_response = br.readLine()) != null) {
                     String[] login_response_parts = login_response.split("::");
                     if (login_response_parts[0].equals("LOGIN")) {
                         final String responseType = login_response_parts[1];
-                        SwingUtilities.invokeLater(() -> { // invokelater is used to ensure that the code runs while the
-                                                           // GUI remains responsive. It schedules the code to be
-                                                           // executed on the Event Dispatch Thread (EDT), which is
-                                                           // responsible for handling GUI updates in Swing.
+                        SwingUtilities.invokeLater(() -> { // invokelater is used to ensure that the code runs while the GUI remains responsive. It schedules the code to be executed on the Event Dispatch Thread (EDT), which isresponsible for handling GUI updates in Swing.
                             if (responseType.equals("SUCCESS")) {
                                 JOptionPane.showMessageDialog(User_auth.this, "Login successful!", "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
-                                current_user = enteredUsername; // Store the logged-in username in the current_user
-                                                                // variable
-                                current_user_id = Integer.parseInt(login_response_parts[2]); // Store the user ID in the
-                                                                                             // current_user_id variable
+                                current_user = enteredUsername; // Store the logged-in username in the current_user variable
+                                current_user_id = Integer.parseInt(login_response_parts[2]); // Store the user ID in thecurrent_user_id variable
+                                
+                                // Store the session key for encrypted communication
+                                if (login_response_parts.length > 3) {
+                                    CryptUtil.sessionKey = CryptUtil.stringToKey(login_response_parts[3]);
+                                }
 
                                 // redirecting user to messenger window after successful login
                                 Messenger messengerWindow = new Messenger(pw, br);

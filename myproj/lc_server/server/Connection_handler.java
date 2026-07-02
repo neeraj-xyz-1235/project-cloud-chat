@@ -4,9 +4,20 @@ import java.sql.*;
 
 public class Connection_handler {
     PrintWriter spw; // Declared PrintWriter to send messages back to the client
+    String currentUsername;
 
-    public Connection_handler(PrintWriter spw) {
+    public Connection_handler(PrintWriter spw, String currentUsername) {
         this.spw = spw;
+        this.currentUsername = currentUsername;
+    }
+
+    private void sendEncrypted(PrintWriter pw, String payload, String username) {
+        if (username != null && ServerCryptUtil.getUserKey(username) != null) {
+            String encrypted = ServerCryptUtil.encrypt(payload, username);
+            pw.println("ENCRYPTED::" + encrypted);
+        } else {
+            pw.println(payload);
+        }
     }
 
     public void connectToUser(String targetUser, int currentUserId) {
@@ -29,17 +40,17 @@ public class Connection_handler {
                 if (targetRs.next()) {
                     PrintWriter targetPw = Server.connected_clients.get(targetUser);
                     if (targetPw != null) {
-                        targetPw.println("CONNECT_REQUEST::" + currentUser);
+                        sendEncrypted(targetPw, "CONNECT_REQUEST::" + currentUser, targetUser);
                     } else {
-                        spw.println("CONNECT::USER_NOT_FOUND::-1::dummy::dummy");
+                        sendEncrypted(spw, "CONNECT::USER_NOT_FOUND::-1::dummy::dummy", currentUsername);
                     }
                 } else {
-                    spw.println("CONNECT::USER_NOT_FOUND::-1::dummy::dummy");
+                    sendEncrypted(spw, "CONNECT::USER_NOT_FOUND::-1::dummy::dummy", currentUsername);
                 }
             }
         } catch (SQLException e) {
             System.out.println("Error occurred while checking user existence: " + e.getMessage());
-            spw.println("CONNECT::FAILURE::-1::dummy::dummy");
+            sendEncrypted(spw, "CONNECT::FAILURE::-1::dummy::dummy", currentUsername);
         }
     }
 
@@ -91,9 +102,9 @@ public class Connection_handler {
 
                 PrintWriter requesterPw = Server.connected_clients.get(requester);
                 if (requesterPw != null) {
-                    requesterPw.println("CONNECT::SUCCESS::" + chatRoomId + "::" + acceptor + "::" + requester);
+                    sendEncrypted(requesterPw, "CONNECT::SUCCESS::" + chatRoomId + "::" + acceptor + "::" + requester, requester);
                 }
-                spw.println("CONNECT::SUCCESS::" + chatRoomId + "::" + requester + "::" + acceptor);
+                sendEncrypted(spw, "CONNECT::SUCCESS::" + chatRoomId + "::" + requester + "::" + acceptor, currentUsername);
             }
         } catch (SQLException e) {
             System.out.println("Error occurred during acceptConnection: " + e.getMessage());
@@ -103,7 +114,7 @@ public class Connection_handler {
     public void rejectConnection(String requester) {
         PrintWriter requesterPw = Server.connected_clients.get(requester);
         if (requesterPw != null) {
-            requesterPw.println("CONNECT::REJECTED::-1::dummy::dummy");
+            sendEncrypted(requesterPw, "CONNECT::REJECTED::-1::dummy::dummy", requester);
         }
     }
 }

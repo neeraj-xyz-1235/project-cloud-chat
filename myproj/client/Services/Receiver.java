@@ -17,6 +17,13 @@ public class Receiver {
         try {
             String message;
             while ((message = br.readLine()) != null) {
+                if (message.startsWith("ENCRYPTED::")) {
+                    String[] parts = message.split("::", 2);
+                    if (parts.length == 2 && CryptUtil.sessionKey != null) {
+                        message = CryptUtil.decrypt(parts[1], CryptUtil.sessionKey);
+                    }
+                }
+                
                 String[] messageParts = message.split("::", -1);
                 String command = messageParts[0];
 

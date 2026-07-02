@@ -1,7 +1,6 @@
 
 import java.io.*;
 import java.net.*;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
@@ -13,7 +12,7 @@ public class Server {
 
             ServerSocket ss = new ServerSocket(10100);
             System.out.println("Server is listening on port 10100...");
-			Data_handler dh = new Data_handler();
+            
 
             while (true) { // while loop to continuously accept incoming client connections
                 Socket s = ss.accept();
@@ -21,8 +20,11 @@ public class Server {
 
                 PrintWriter spw = new PrintWriter(s.getOutputStream(), true);
                 Client_handler ch = new Client_handler(s, spw);
-				
+
                 ch.start();
+                if(!ch.isAlive()){
+                    System.out.println("Client disconnected!");   
+                }
             }
         } catch (IOException e) {
             System.out.println("Server exception: " + e);

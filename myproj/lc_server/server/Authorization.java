@@ -2,8 +2,10 @@
 import java.sql.*;
 import java.io.*;
 
+
 public class Authorization {
     PrintWriter spw; // Declared PrintWriter to send messages back to the client
+    ServerCryptUtil scu = new ServerCryptUtil(); 
 
     public Authorization(PrintWriter spw) {
         this.spw = spw;
@@ -23,9 +25,16 @@ public class Authorization {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     System.out.println("User " + username + " logged in successfully.");
-                    spw.println("LOGIN::SUCCESS::" + rs.getInt("user_id"));
+
                     // adding clients to hashmap
                     Server.connected_clients.put(username, spw);
+
+                    // Generate a unique key for the user after successful login
+                    String userKey = ServerCryptUtil.generateKey();
+                    // Store the generated key in the userKeys HashMap
+                    ServerCryptUtil.storeUserKey(username, userKey);
+
+                    spw.println("LOGIN::SUCCESS::" + rs.getInt("user_id")+ "::" + userKey); // send the generated key to the client
                 } else {
                     spw.println("LOGIN::INVALID_CREDENTIALS");
                 }

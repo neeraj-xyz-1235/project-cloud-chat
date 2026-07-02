@@ -131,7 +131,8 @@ public class Messenger extends JFrame {
             String targetUser = connectUserInput.getText().trim();
 
             // Send connect request to the server.
-            pw.println("CONNECT::" + current_user_id + "::" + targetUser + "::" + current_user_id);
+            String payload = "CONNECT::" + current_user_id + "::" + targetUser + "::" + current_user_id;
+            pw.println("ENCRYPTED::" + User_auth.getCurrentUser() + "::" + CryptUtil.encrypt(payload, CryptUtil.sessionKey));
         }
     }
 
@@ -142,7 +143,8 @@ public class Messenger extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         } else {
-            pw.println("MESSAGE::" + chat_room_id + "::" + current_user_id + "::" + message);
+            String payload = "MESSAGE::" + chat_room_id + "::" + current_user_id + "::" + message;
+            pw.println("ENCRYPTED::" + User_auth.getCurrentUser() + "::" + CryptUtil.encrypt(payload, CryptUtil.sessionKey));
             //display the sent message in the chat history
             appendChatMessage(current_user != null ? current_user : "Me", message);
             
@@ -213,9 +215,11 @@ public class Messenger extends JFrame {
                     JOptionPane.QUESTION_MESSAGE);
 
             if (option == JOptionPane.YES_OPTION) {
-                pw.println("CONNECT_ACCEPT::" + requester);
+                String payload = "CONNECT_ACCEPT::" + requester;
+                pw.println("ENCRYPTED::" + User_auth.getCurrentUser() + "::" + CryptUtil.encrypt(payload, CryptUtil.sessionKey));
             } else {
-                pw.println("CONNECT_REJECT::" + requester);
+                String payload = "CONNECT_REJECT::" + requester;
+                pw.println("ENCRYPTED::" + User_auth.getCurrentUser() + "::" + CryptUtil.encrypt(payload, CryptUtil.sessionKey));
             }
         });
     }
