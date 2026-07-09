@@ -22,7 +22,7 @@ public class Connection_handler {
 
     public void connectToUser(String targetUser, int currentUserId) {
         String sql = "SELECT username FROM users WHERE user_id = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:users.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             String currentUser = "";
@@ -39,10 +39,10 @@ public class Connection_handler {
                 ResultSet targetRs = targetPstmt.executeQuery();
                 if (targetRs.next()) {
                     PrintWriter targetPw = Server.connected_clients.get(targetUser);
-                    if (targetPw != null) {
+                    if (targetPw != null) { //if the user doesnt have printwriter, it is assumed that the user is offline
                         sendEncrypted(targetPw, "CONNECT_REQUEST::" + currentUser, targetUser);
                     } else {
-                        sendEncrypted(spw, "CONNECT::USER_NOT_FOUND::-1::dummy::dummy", currentUsername);
+                        sendEncrypted(spw, "CONNECT::USER_NOT_FOUND::-1::dummy::dummy", currentUsername); //dummy::dummy is used to avoid array out of bound
                     }
                 } else {
                     sendEncrypted(spw, "CONNECT::USER_NOT_FOUND::-1::dummy::dummy", currentUsername);
@@ -56,7 +56,7 @@ public class Connection_handler {
 
     public void acceptConnection(String requester) {
         String acceptor = "";
-        for (java.util.Map.Entry<String, PrintWriter> entry : Server.connected_clients.entrySet()) {
+        for (java.util.Map.Entry<String, PrintWriter> entry : Server.connected_clients.entrySet()) { //looping though connected clients
             if (entry.getValue().equals(spw)) {
                 acceptor = entry.getKey();
                 break;
@@ -66,9 +66,8 @@ public class Connection_handler {
         int acceptorId = -1;
         int requesterId = -1;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:users.db");
-                PreparedStatement pstmt = conn
-                        .prepareStatement("SELECT user_id, username FROM users WHERE username = ? OR username = ?")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
+                PreparedStatement pstmt = conn.prepareStatement("SELECT user_id, username FROM users WHERE username = ? OR username = ?")) {
             pstmt.setString(1, acceptor);
             pstmt.setString(2, requester);
             ResultSet rs = pstmt.executeQuery();
@@ -80,7 +79,7 @@ public class Connection_handler {
             }
 
             if (acceptorId != -1 && requesterId != -1) {
-                String chatRoomSql = "INSERT OR IGNORE INTO chat_rooms (user1_id, user2_id) VALUES (?, ?)";
+                String chatRoomSql = "INSERT IGNORE INTO chat_rooms (user1_id, user2_id) VALUES (?, ?)";
                 try (PreparedStatement chatRoomPstmt = conn.prepareStatement(chatRoomSql)) {
                     chatRoomPstmt.setInt(1, requesterId);
                     chatRoomPstmt.setInt(2, acceptorId);

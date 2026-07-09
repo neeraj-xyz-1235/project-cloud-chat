@@ -12,7 +12,7 @@ public class Authorization {
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:users.db");
+        return DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
     }
 
     public void login(String username, String password) {

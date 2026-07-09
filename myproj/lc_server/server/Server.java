@@ -7,6 +7,7 @@ public class Server {
     public static ConcurrentHashMap<String, PrintWriter> connected_clients = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
+        new Data_handler(); // Initialize the database
 
         try {
 
@@ -16,8 +17,7 @@ public class Server {
 
             while (true) { // while loop to continuously accept incoming client connections
                 Socket s = ss.accept();
-                System.out.println("Client connected!");
-
+                System.out.println("Client connected!");                
                 PrintWriter spw = new PrintWriter(s.getOutputStream(), true);
                 Client_handler ch = new Client_handler(s, spw);
 

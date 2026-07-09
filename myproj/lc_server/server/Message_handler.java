@@ -21,7 +21,7 @@ public class Message_handler {
 
     public void handleMessage(int chatRoomId, String sender, String content) {
         String sql = "INSERT INTO messages (chat_room_id, sender_id, message) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:users.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             int senderId = Integer.parseInt(sender);
@@ -55,7 +55,7 @@ public class Message_handler {
                     userStmt.setInt(1, senderId);
                     userStmt.setInt(2, targetUserId);
                     ResultSet userRs = userStmt.executeQuery();
-                    while (userRs.next()) {
+                    while (userRs.next()) { 
                         if (userRs.getInt("user_id") == senderId) {
                             senderUsername = userRs.getString("username");
                         } else {
