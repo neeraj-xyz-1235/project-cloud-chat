@@ -21,11 +21,11 @@ public class Client_handler extends Thread { // Client handler class that extend
             String message;
 
             while ((message = br.readLine()) != null) {
-                if (message.startsWith("ENCRYPTED::")) {
-                    String[] encParts = message.split("::", 3);
+                if (message.startsWith("ENCRYPTED::")) { // check if the message is encrypted
+                    String[] encParts = message.split("::", 3); // split the message into parts
                     if (encParts.length == 3) {
-                        currentUsername = encParts[1];
-                        String decrypted = ServerCryptUtil.decrypt(encParts[2], currentUsername);
+                        currentUsername = encParts[1]; // get the username
+                        String decrypted = ServerCryptUtil.decrypt(encParts[2], currentUsername); // decrypt the message
                         if (decrypted != null) {
                             message = decrypted;
                         }
@@ -35,45 +35,56 @@ public class Client_handler extends Thread { // Client handler class that extend
                 String[] parts = message.split("::", 4); // splitting the incoming message into parts using "::" as a delimiter with a limit of 4 to avoid breaking message content
 
                 String command = parts[0]; // the first part of the message is the command
+                switch (command) {
+                    case "LOGIN": {
+                        String username = parts[1];
+                        String password = parts[2];
 
-                if (command.equals("LOGIN")) {
-                    String username = parts[1];
-                    String password = parts[2];
-
-                    System.out.println("Validating user: " + username);
-                    Authorization auth = new Authorization(spw);
-                    if (auth.login(username, password)) {
-                        currentUsername = username;
+                        System.out.println("Validating user: " + username);
+                        Authorization auth = new Authorization(spw);
+                        if (auth.login(username, password)) {
+                            currentUsername = username;
+                        }
+                        break;
                     }
-                } else if (command.equals("REGISTER")) {
-                    String username = parts[1];
-                    String password = ServerCryptUtil.Encryptpassword(parts[2]); // Encrypt the password before storing it in the database
-
-                    System.out.println("Registering user: " + username);
-                    Authorization auth = new Authorization(spw);
-                    auth.register(username, password);
-                } else if (command.equals("CONNECT")) {
-                    int currentUserId = Integer.parseInt(parts[1]); // string to int conversion for current user id
-                    String targetUser = parts[2];
-
-                    Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
-                    connectionHandler.connectToUser(targetUser, currentUserId);
-                } else if (command.equals("MESSAGE")) {
-                    int chatRoomId = Integer.parseInt(parts[1]);
-                    String sender = parts[2];
-                    String content = parts[3];
-                    Message_handler messageHandler = new Message_handler(spw, currentUsername);
-                    messageHandler.handleMessage(chatRoomId, sender, content);
-                } else if (command.equals("CONNECT_ACCEPT")) {
-                    String requester = parts[1];
-                    Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
-                    connectionHandler.acceptConnection(requester);
-                } else if (command.equals("CONNECT_REJECT")) {
-                    String requester = parts[1];
-                    Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
-                    connectionHandler.rejectConnection(requester);
-                } else {
-                    System.out.println("Unknown command received: " + command);
+                    case "REGISTER": {
+                        String username = parts[1];
+                        String password = ServerCryptUtil.Encryptpassword(parts[2]); 
+                        System.out.println("Registering user: " + username);
+                        Authorization auth = new Authorization(spw);
+                        auth.register(username, password);
+                        break;
+                    }
+                    case "CONNECT": {
+                        int currentUserId = Integer.parseInt(parts[1]); 
+                        String targetUser = parts[2];
+                        Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
+                        connectionHandler.connectToUser(targetUser, currentUserId);
+                        break;
+                    }
+                    case "MESSAGE": {
+                        int chatRoomId = Integer.parseInt(parts[1]);
+                        String sender = parts[2];
+                        String content = parts[3];
+                        Message_handler messageHandler = new Message_handler(spw, currentUsername);
+                        messageHandler.handleMessage(chatRoomId, sender, content);
+                        break;
+                    }
+                    case "CONNECT_ACCEPT": {
+                        String requester = parts[1];
+                        Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
+                        connectionHandler.acceptConnection(requester);
+                        break;
+                    }
+                    case "CONNECT_REJECT": {
+                        String requester = parts[1];
+                        Connection_handler connectionHandler = new Connection_handler(spw, currentUsername);
+                        connectionHandler.rejectConnection(requester);
+                        break;
+                    }
+                    default:
+                        System.out.println("Unknown command received: " + command);
+                        break;
                 }
             }
         } catch (IOException e) {
