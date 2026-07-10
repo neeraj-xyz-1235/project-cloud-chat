@@ -22,9 +22,6 @@ public class Server {
                 Client_handler ch = new Client_handler(s, spw);
 
                 ch.start();
-                if(!ch.isAlive()){
-                    System.out.println("Client disconnected!");   
-                }
             }
         } catch (IOException e) {
             System.out.println("Server exception: " + e);

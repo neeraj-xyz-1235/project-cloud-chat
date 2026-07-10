@@ -16,9 +16,9 @@ public class Client_handler extends Thread { // Client handler class that extend
 
     @Override
     public void run() {
+        String currentUsername = null;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(CHsocket.getInputStream()))) {
             String message;
-            String currentUsername = null;
 
             while ((message = br.readLine()) != null) {
                 if (message.startsWith("ENCRYPTED::")) {
@@ -42,10 +42,12 @@ public class Client_handler extends Thread { // Client handler class that extend
 
                     System.out.println("Validating user: " + username);
                     Authorization auth = new Authorization(spw);
-                    auth.login(username, password);
+                    if (auth.login(username, password)) {
+                        currentUsername = username;
+                    }
                 } else if (command.equals("REGISTER")) {
                     String username = parts[1];
-                    String password = parts[2];
+                    String password = ServerCryptUtil.Encryptpassword(parts[2]); // Encrypt the password before storing it in the database
 
                     System.out.println("Registering user: " + username);
                     Authorization auth = new Authorization(spw);
@@ -81,16 +83,9 @@ public class Client_handler extends Thread { // Client handler class that extend
                 if (CHsocket != null && !CHsocket.isClosed()) {
                     CHsocket.close();
                     
-                    String disconnectedUser = null;
-                    for (java.util.Map.Entry<String, PrintWriter> entry : Server.connected_clients.entrySet()) {
-                        if (entry.getValue().equals(spw)) {
-                            disconnectedUser = entry.getKey();
-                            break;
-                        }
-                    }
-                    if (disconnectedUser != null) {
-                        ServerCryptUtil.removeUserKey(disconnectedUser);
-                        Server.connected_clients.remove(disconnectedUser);
+                    if (currentUsername != null) {
+                        ServerCryptUtil.removeUserKey(currentUsername);
+                        Server.connected_clients.remove(currentUsername);
                     }
                 }
             } catch (IOException e) {

@@ -22,8 +22,8 @@ public class Connection_handler {
 
     public void connectToUser(String targetUser, int currentUserId) {
         String sql = "SELECT username FROM users WHERE user_id = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = Data_handler.getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             String currentUser = "";
             pstmt.setInt(1, currentUserId);
@@ -66,8 +66,8 @@ public class Connection_handler {
         int acceptorId = -1;
         int requesterId = -1;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
-                PreparedStatement pstmt = conn.prepareStatement("SELECT user_id, username FROM users WHERE username = ? OR username = ?")) {
+        Connection conn = Data_handler.getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement("SELECT user_id, username FROM users WHERE username = ? OR username = ?")) {
             pstmt.setString(1, acceptor);
             pstmt.setString(2, requester);
             ResultSet rs = pstmt.executeQuery();

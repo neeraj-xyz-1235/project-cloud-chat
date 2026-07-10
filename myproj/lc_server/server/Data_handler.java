@@ -2,12 +2,14 @@
 import java.sql.*;
     
 public class Data_handler {
+    public static Connection sharedConnection;
+
     public Data_handler() {
-        String url = "jdbc:mysql://localhost:3306/appdata"; // creating MySQL db 
+        String url = "jdbc:mysql://localhost:3306/appdata?createDatabaseIfNotExist=true"; // creating MySQL db 
 
         try {
-            Connection conn = DriverManager.getConnection(url); // Create db connection
-            Statement stmt = conn.createStatement(); // creating statement object, which is like a cursor...
+            sharedConnection = DriverManager.getConnection(url); // Create db connection
+            Statement stmt = sharedConnection.createStatement(); // creating statement object, which is like a cursor...
 
             System.out.println("Database connection established successfully.");
 
@@ -28,5 +30,9 @@ public class Data_handler {
         } catch (SQLException e) {
             System.out.println("Database connection failed: " + e);
         }
+    }
+
+    public static Connection getConnection() {
+        return sharedConnection;
     }
 }

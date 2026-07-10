@@ -1,6 +1,8 @@
 
 import java.sql.*;
 import java.io.*;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+    
 
 
 public class Authorization {
@@ -11,21 +13,16 @@ public class Authorization {
         this.spw = spw;
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
-    }
-
-    public void login(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-        try (Connection conn = getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    public boolean login(String username, String password) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        Connection conn = Data_handler.getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
-            pstmt.setString(2, password);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    System.out.println("User " + username + " logged in successfully.");
-
+                    String storedPassword = rs.getString("password");
+                    if(BCrypt.verifyer().verify(password.toCharArray(), storedPassword).verified){
                     // adding clients to hashmap
                     Server.connected_clients.put(username, spw);
 
@@ -33,22 +30,26 @@ public class Authorization {
                     String userKey = ServerCryptUtil.generateKey();
                     // Store the generated key in the userKeys HashMap
                     ServerCryptUtil.storeUserKey(username, userKey);
-
                     spw.println("LOGIN::SUCCESS::" + rs.getInt("user_id")+ "::" + userKey); // send the generated key to the client
-                } else {
+                    return true;
+                    }
+                    else {
                     spw.println("LOGIN::INVALID_CREDENTIALS");
+                    return false;
+                    }
                 }
             }
         } catch (SQLException e) {
             System.out.println("Error occurred while checking login credentials: " + e.getMessage());
             spw.println("LOGIN::FAILURE");
         }
+        return false;
     }
 
     public void register(String username, String password) {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-        try (Connection conn = getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = Data_handler.getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
             pstmt.setString(2, password);

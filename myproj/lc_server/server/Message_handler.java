@@ -21,8 +21,8 @@ public class Message_handler {
 
     public void handleMessage(int chatRoomId, String sender, String content) {
         String sql = "INSERT INTO messages (chat_room_id, sender_id, message) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/appdata");
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = Data_handler.getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             int senderId = Integer.parseInt(sender);
 

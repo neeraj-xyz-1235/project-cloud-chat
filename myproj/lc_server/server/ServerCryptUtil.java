@@ -5,6 +5,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
+
 
 public class ServerCryptUtil {
     public static String generateKey(){
@@ -61,5 +64,10 @@ public class ServerCryptUtil {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String Encryptpassword(String password){
+        String hashed_password = BCrypt.withDefaults().hashToString(12, password.toCharArray()); // hash the password using bcrypt with a cost factor of 12
+        return hashed_password;
     }
 }
