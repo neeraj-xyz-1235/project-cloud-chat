@@ -1,7 +1,7 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "c:\\Users\\Niraj\\Desktop\\mysql-connector-j-9.7.0\\mysql-connector-j-9.7.0.jar",
-        "c:\\Users\\Niraj\\Downloads\\bcrypt-0.10.2.jar"
+        "c:\\Users\\Niraj\\Downloads\\bcrypt-0.10.2.jar",
+        "myproj/lc_server/lib/mysql-connector-j-9.7.0.jar"
     ]
 }

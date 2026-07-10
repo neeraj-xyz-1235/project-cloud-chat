@@ -13,7 +13,7 @@ public class Data_handler {
 
             System.out.println("Database connection established successfully.");
 
-            String user_stmt = "CREATE TABLE IF NOT EXISTS users (user_id  INTEGER PRIMARY Key AUTO_INCREMENT, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL)";
+            String user_stmt = "CREATE TABLE IF NOT EXISTS users (user_id  INTEGER PRIMARY KEY AUTO_INCREMENT, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL)";
             stmt.executeUpdate(user_stmt);
 
             System.out.println("User table ready...");
