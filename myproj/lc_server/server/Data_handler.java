@@ -22,7 +22,7 @@ public class Data_handler {
         }
 
         try {
-            sharedConnection = DriverManager.getConnection(url, admin, password); // Create db connection
+            sharedConnection = DriverManager.getConnection(db_url, db_username, db_password); // Create db connection
             Statement stmt = sharedConnection.createStatement(); // creating statement object, which is like a cursor...
 
             System.out.println("Database connection established successfully.");
