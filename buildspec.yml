@@ -35,9 +35,9 @@ phases:
     #create a json file to tell ecs, where the image is
     - printf '[{"name":"lanchat-server","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json 
 
-  artifacts:
-    files:  
-    - imagedefinitions.json
+artifacts:
+  files:  
+  - imagedefinitions.json
 
 
     
