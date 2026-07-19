@@ -1,0 +1,43 @@
+#yml file to build and push the image to code artifact 
+
+version: 0.2
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: "518481635610"
+
+phases: 
+  pre_build:
+    commands:
+    #login to ecr
+    #changing to more generic variable version to avoid info leak
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+    #assign ecr url to a variable
+    - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lan-chat-server
+    #set image tag to commit hash (the one assigned by github) and if not found set to latest, cut -c means cut the string to first 7 characters
+    - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - IMAGE_TAG=${COMMIT_HASH:=latest}
+    - echo login sucessful
+  build:
+    commands:
+    #change directory to lc_server and build the image
+    - cd lc_server
+    - docker build -t $REPOSITORY_URI:latest .
+    #Tag the image with ecr url
+    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+    - echo build complete
+    
+  post_build:
+    commands:
+    #push image to ecr
+    - docker push $REPOSITORY_URI:latest
+    - docker push $REPOSITORY_URI:$IMAGE_TAG
+    #create a json file to tell ecs, where the image is
+    - printf '[{"name":"lanchat-server","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json 
+
+  artifacts:
+    files:  
+    - imagedefinitions.json
+
+
+    
