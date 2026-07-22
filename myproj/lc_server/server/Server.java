@@ -10,7 +10,7 @@ public class Server {
         new Data_handler(); // Initialize the database
 
         try {
-            System.out.println("SERVER BOOTING UP: VERSION 99999");
+            System.out.println("SERVER BOOTING UP: VERSION fixed idle timeout");
             ServerSocket ss = new ServerSocket(10100);
             System.out.println("Server is listening on port 10100...");
             

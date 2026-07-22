@@ -25,6 +25,21 @@ public class Client {
             // autoflush means message will be pushed through pipeline immediately without
             // waiting for the buffer to fill up
 
+
+            //AWS Load balancer and has a time limit, it closes the connection if it is not being utilised for (usually) 60s so we send a ping every 15s to keep the connection alive
+            Thread keepAlive = new Thread(()->{
+                while(true){
+                    try {
+                        pw.println("PING");
+                        Thread.sleep(15000);
+                    } catch (Exception e) {
+                        System.out.println("Failed to send ping message");
+                    }
+                }
+            });
+            keepAlive.setDaemon(true); // this means if main thread exits, this thread will also exit
+            keepAlive.start();
+
             User_auth userAuth = new User_auth(pw, br);
             userAuth.setVisible(true);
         } catch (Exception e) {

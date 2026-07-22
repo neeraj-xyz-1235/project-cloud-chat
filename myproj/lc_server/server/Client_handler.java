@@ -82,6 +82,9 @@ public class Client_handler extends Thread { // Client handler class that extend
                         connectionHandler.rejectConnection(requester);
                         break;
                     }
+                    case "PING":
+                        //ignore the ping
+                        break;
                     default:
                         System.out.println("Unknown command received: " + command);
                         break;
