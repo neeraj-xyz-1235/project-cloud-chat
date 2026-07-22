@@ -15,9 +15,9 @@ WORKDIR /app/server
 RUN rm -f *.class
 
 #complie java files 
-RUN javac -cp ".:../lib/*" *.java
+RUN curl -L -o ../lib/bytes-1.5.0.jar "https://repo1.maven.org/maven2/at/favre/lib/bytes/1.5.0/bytes-1.5.0.jar" && javac -cp ".:../lib/*" *.java
 
 EXPOSE 10100
 
 #run the server
-CMD ls -la ../lib/ && java -cp ".:../lib/*" Server
+CMD ["java", "-cp", ".:../lib/*", "Server"]
