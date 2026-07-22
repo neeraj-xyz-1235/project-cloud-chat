@@ -43,6 +43,7 @@ public class Data_handler {
 
         } catch (SQLException e) {
             System.out.println("Database connection failed: " + e);
+            System.exit(1);
         }
     }
 
