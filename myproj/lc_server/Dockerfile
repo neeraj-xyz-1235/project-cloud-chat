@@ -20,4 +20,4 @@ RUN javac -cp ".:../lib/*" *.java
 EXPOSE 10100
 
 #run the server
-CMD ["java", "-cp", ".:../lib/*", "Server"]
+CMD ls -la ../lib/ && java -cp ".:../lib/*" Server
