@@ -14,10 +14,14 @@ WORKDIR /app/server
 #remove all class files
 RUN rm -f *.class
 
+# Move all JARs into the current directory to avoid Linux wildcard path traversal bugs
+RUN mv ../lib/*.jar .
+RUN curl -L -o bytes-1.5.0.jar "https://repo1.maven.org/maven2/at/favre/lib/bytes/1.5.0/bytes-1.5.0.jar"
+
 #complie java files 
-RUN curl -L -o ../lib/bytes-1.5.0.jar "https://repo1.maven.org/maven2/at/favre/lib/bytes/1.5.0/bytes-1.5.0.jar" && javac -cp ".:../lib/*" *.java
+RUN javac -cp ".:*" *.java
 
 EXPOSE 10100
 
 #run the server
-CMD ["java", "-cp", ".:../lib/*", "Server"]
+CMD ["java", "-cp", ".:*", "Server"]
