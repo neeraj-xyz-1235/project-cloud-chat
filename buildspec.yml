@@ -32,8 +32,8 @@ phases:
     #push image to ecr
     - docker push $REPOSITORY_URI:latest
     - docker push $REPOSITORY_URI:$IMAGE_TAG
-    #create a json file to tell ecs, where the image is
-    - printf '[{"name":"lanchat-server","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json 
+    #create a json file to tell ecs, where the image is and store it in source of the directory because Codepipeline by default expects it there
+    - printf '[{"name":"lanchat-server","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/imagedefinitions.json 
 
 artifacts:
   files:  
