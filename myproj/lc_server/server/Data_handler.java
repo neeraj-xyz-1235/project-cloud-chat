@@ -3,19 +3,22 @@ import java.sql.*;
     
 public class Data_handler {
     public static Connection sharedConnection;
+    private static String db_url;
+    private static String db_username;
+    private static String db_password;
 
     public Data_handler() {
-        String db_password = System.getenv("DB_PASSWORD"); //retriving stored password....
+        db_password = System.getenv("DB_PASSWORD"); //retriving stored password....
         if (db_password == null){
             System.out.println("Environment variable DB_PASSWORD not set");
             System.exit(1);
         }
-        String db_url = System.getenv("DB_URL");  // retriving stored db url.....
+        db_url = System.getenv("DB_URL");  // retriving stored db url.....
         if (db_url == null){
             System.out.println("Environment variable DB_URL not set");
             System.exit(1);
         }
-		String db_username = System.getenv("DB_USERNAME");  // retriving stored db username.....
+        db_username = System.getenv("DB_USERNAME");  // retriving stored db username.....
         if (db_username == null){
             System.out.println("Environment variable DB_USERNAME not set");
             System.exit(1);
@@ -48,6 +51,15 @@ public class Data_handler {
     }
 
     public static Connection getConnection() {
+        try {
+            // Check if connection is dead (2 second timeout)
+            if (sharedConnection == null || sharedConnection.isClosed() || !sharedConnection.isValid(2)) {
+                System.out.println("Database connection is dead or closed, reconnecting...");
+                sharedConnection = DriverManager.getConnection(db_url, db_username, db_password);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to reconnect to database: " + e);
+        }
         return sharedConnection;
     }
 }
