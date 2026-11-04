@@ -10,7 +10,7 @@ public class Server {
         new Data_handler(); // Initialize the database
 
         try {
-            System.out.println("SERVER BOOTING UP: demonstrating the update 2");
+            System.out.println("SERVER BOOTING UP: This is redeployment");
             ServerSocket ss = new ServerSocket(10100);
             System.out.println("Server is listening on port 10100...");
             
